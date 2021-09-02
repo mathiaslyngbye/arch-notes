@@ -2,33 +2,57 @@
 This describes the process and notes I have gathered from installing Arch Linux.
 
 ## Installation
-### Booting into installation media
+### Setup
 Force the desired boot mode (likely UEFI) from bios.
 Boot into the installation media.
 This should provide you with an Arch Linux shell.
 
 #### Verify boot mode
-ls /sys/firmware/efi/efivars // If exists, you are in UEFI
+```bash
+ls /sys/firmware/efi/efivars
+```
+If file exists, you are in UEFI.
 
-// Verify internet
+#### Verify internet connection
+I've run with a wired connection. However, wireless may be established.
+Connection may be verified through the following commands.
+```bash
 ip addr show
 ping -c 8.8.8.8
+```
 
-// Keyboard
+#### Set keyboard layout
+Quality of life for installation only. I'm danish so I load danish keys.
+```bash
 loadkeys dk-latin1
+```
 
-// Set time
+#### Set time and timezone
+This is just to make sure. This might need to be repeated when done.
+```bash
 timedatectl set-ntp true
 timedatectl set-timezone "Europe/Copenhagen"
-timedatactl status // <= verify
+timedatactl status
+```
 
-// Set up disk
-I ALREADY HAD 512M EFI (sda1) and rest Linux filesystem (sda2)
+#### Partition and format disk
+Note, in all cases I already had 512M EFI (sda1) and rest Linux filesystem (sda2).
+Verify your drive location (e.g. via ```fdisk -l``` and partition as desired. Consult wiki if in doubt.
+The following commands formats my existing paritions.
+```bash
 mkfs.fat /dev/sda1
 mkfs.ext4 /dev/sda2
-mount /dev/sda2 /mnt
+```
 
-// System
+### Installing Arch
+
+#### Mounting drive
+Mount the newly formatted drive.
+```bash
+mount /dev/sda2 /mnt
+```
+
+#### Install (Arch) Linux kernel and firmware
 // Note: pacstrap allows pacman install before chroot. After chroot use pacman -S.
 pacstrap /mnt base linux linux-firmware linux-headers // This installs headers | ALTERNATIVE: install linux-lts-xxxx
 genfstab -U -p /mnt >> /mnt/etc/fstab

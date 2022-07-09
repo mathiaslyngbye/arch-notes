@@ -53,29 +53,39 @@ mount /dev/sda2 /mnt
 ```
 
 #### Install (Arch) Linux kernel and firmware
-// Note: pacstrap allows pacman install before chroot. After chroot use pacman -S.
+Note: pacstrap allows pacman install before chroot. After chroot use pacman -S.
+```bash
 pacstrap /mnt base linux linux-firmware linux-headers // This installs headers | ALTERNATIVE: install linux-lts-xxxx
 genfstab -U -p /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
+```
 
 
-// Installing nice stuff
+### Installing nice stuff
+```bash
 pacman -S base-devel
 pacman -S networkmanager wpa_supplicant wireless_tools netctl
+```
 
-// Locale
+#### Locale
 Edit /etc/locale.gen and uncomment en_US.UTF-8 UTF-8 and other needed locales. Generate the locales by running: 
+```bash
 locale-gen
 vim /etc/locale.conf // add LANG=en_US.UTF-8
+```
 
-// Root and user
+#### Root and user
+```bash
 passwd // root
-useradd -m -g users -G wjeel mal
+useradd -m -g users -G wheel mal
 passwd mal
+```
 
-
-================================
-// Grub and stuff
+### Grub and stuff
+```bash
 pacman -S grub efibootmgr dosfstools os-prober mtools
 mkdir /boot/EFI
+mount /dev/sda1 /boot/EFI
+grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+```
 

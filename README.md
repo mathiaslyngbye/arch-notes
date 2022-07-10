@@ -65,6 +65,7 @@ arch-chroot /mnt
 ```bash
 pacman -S base-devel
 pacman -S networkmanager wpa_supplicant wireless_tools netctl
+systemctl enable NetworkManager
 ```
 
 #### Locale
@@ -87,5 +88,44 @@ pacman -S grub efibootmgr dosfstools os-prober mtools
 mkdir /boot/EFI
 mount /dev/sda1 /boot/EFI
 grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+```
+There is more... remember to add it.
+
+### Audio
+Install alsa and pulseaudio-alsa.
+
+### Graphics
+install nvidia driver corresponding to kernel (i.e. linux -> nvidia, linux-lts -> nvidia-lts)
+Generate xorg.conf with nvidia-settings, or copy below.
+
+Add to mkinitcpio:
+Edit the following line of /etc/mkinitcpio.conf
+```
+MODULES=(i915? nouveau? vboxvideo? vmwgfx?)
+```
+Remove nouveau and add nvidia nvidia_modeset nvidia_uvm nvidia_drm
+
+Then run
+```
+sudo mkinitcpio -p linux
+```
+
+Add hook to pacman (see https://wiki.archlinux.org/title/NVIDIA#mkinitcpio)
+```
+[Trigger]
+Operation=Install
+Operation=Upgrade
+Operation=Remove
+Type=Package
+Target=nvidia
+Target=linux
+# Change the linux part above and in the Exec line if a different kernel is used
+
+[Action]
+Description=Update NVIDIA module in initcpio
+Depends=mkinitcpio
+When=PostTransaction
+NeedsTargets
+Exec=/bin/sh -c 'while read -r trg; do case $trg in linux) exit 0; esac; done; /usr/bin/mkinitcpio -P'
 ```
 
